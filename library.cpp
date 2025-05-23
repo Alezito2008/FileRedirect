@@ -8,12 +8,10 @@ typedef int (WINAPI* MessageBoxWType)(HWND, LPCWSTR, LPCWSTR, UINT);
 MessageBoxWType originalMessageBoxW = nullptr;
 
 int WINAPI HookedMessageBoxW(HWND hwnd, LPCWSTR lpText, LPCWSTR lpCaption, UINT uType) {
-    return originalMessageBoxW(hwnd, L"Hooked!", lpCaption, uType);
+    return originalMessageBoxW(hwnd, L"Hooked!", L"Hooked", uType);
 }
 
 void setupHook() {
-    MessageBoxW(NULL, L"DLL INYECTADO", L"DLL INYECTADO", MB_OK);
-
     MH_STATUS status;
 
     status = MH_Initialize();
@@ -34,4 +32,6 @@ void setupHook() {
     if (status != MH_OK) {
         MessageBox(NULL, "Error al iniciar hook", "Error", MB_OK | MB_ICONERROR);
     }
+
+    MessageBoxW(NULL, L"Hookeado", L"Hookeado", MB_OK);
 }
