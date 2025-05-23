@@ -1,0 +1,6 @@
+#ifndef FILEREDIRECT_LIBRARY_H
+#define FILEREDIRECT_LIBRARY_H
+
+void setupHook();
+
+#endif //FILEREDIRECT_LIBRARY_H

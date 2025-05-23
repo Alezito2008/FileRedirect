@@ -1,0 +1,21 @@
+# ninja log v6
+21	1271	7697074744073986	CMakeFiles/FileRedirect.dir/library.cpp.obj	82573185fa5a9d23
+1181	1268	7697069167749260	libFileRedirect.a	d51f6aab972e4c8e
+1	437	7697078784591416	build.ninja	884790975965a02e
+23	1269	7697074744093925	CMakeFiles/FileRedirect.dir/dllmain.cpp.obj	d9d51fe5f92fae
+13	389	7697078784591416	build.ninja	884790975965a02e
+29	275	7697078786474803	CMakeFiles/FileRedirect.dir/minhook/src/hde/hde32.c.obj	faeaea58a29e6a9a
+19	920	7697078786365100	CMakeFiles/FileRedirect.dir/dllmain.cpp.obj	104b77ae2be80f1e
+21	1273	7697078786385074	CMakeFiles/FileRedirect.dir/library.cpp.obj	917558cbeb1ebc74
+23	1924	7697078786414961	CMakeFiles/FileRedirect.dir/minhook/src/buffer.c.obj	1dc29da0f3cb22cf
+28	1925	7697078786454855	CMakeFiles/FileRedirect.dir/minhook/src/trampoline.c.obj	2b9c9fe1b025ab63
+32	1926	7697078786494748	CMakeFiles/FileRedirect.dir/minhook/src/hde/hde64.c.obj	dfa66e62acfb851b
+25	1958	7697078786424944	CMakeFiles/FileRedirect.dir/minhook/src/hook.c.obj	f382b13325572a77
+1958	2043	7697078806531383	libFileRedirect.dll	b3c5c61e8e2932c2
+1958	2043	7697078806531383	libFileRedirect.dll.a	b3c5c61e8e2932c2
+13	1052	7697079014342120	CMakeFiles/FileRedirect.dir/library.cpp.obj	917558cbeb1ebc74
+1052	1110	7697079025243606	libFileRedirect.dll	b3c5c61e8e2932c2
+1052	1110	7697079025243606	libFileRedirect.dll.a	b3c5c61e8e2932c2
+13	809	7697080662497797	CMakeFiles/FileRedirect.dir/dllmain.cpp.obj	104b77ae2be80f1e
+16	429	7697081031663857	libFileRedirect.dll	b3c5c61e8e2932c2
+16	429	7697081031663857	libFileRedirect.dll.a	b3c5c61e8e2932c2
