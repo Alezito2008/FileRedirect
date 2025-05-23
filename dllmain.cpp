@@ -1,5 +1,6 @@
 #include <windows.h>
 #include "library.h"
+#include "minhook/include/MinHook.h"
 
 BOOL WINAPI DllMain(
     HINSTANCE hinstDLL,  // handle to DLL module
@@ -24,6 +25,7 @@ BOOL WINAPI DllMain(
             break;
 
         case DLL_PROCESS_DETACH:
+            MH_Uninitialize();
 
             if (lpvReserved != nullptr)
             {
