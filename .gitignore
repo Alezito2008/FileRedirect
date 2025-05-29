@@ -1,0 +1,7 @@
+.vs/
+*.user
+*.suo
+*.VC.db
+*.vcxproj.user
+x64/
+packages/
