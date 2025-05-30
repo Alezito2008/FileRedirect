@@ -26,13 +26,13 @@ bool fileExists(const std::wstring& path) {
     return file.is_open();
 }
 
-void createDirFromPath(std::wstring originalPath, std::wstring baseDir) {
+std::wstring createDirFromPath(std::wstring originalPath, std::wstring baseDir) {
     wchar_t buffer[MAX_PATH];
     wcscpy_s(buffer, originalPath.c_str());
     PathCchRemoveFileSpec(buffer, MAX_PATH);
     std::wstring dirsToCreate = baseDir + splitLast(std::wstring(buffer), L"\\Balatro");
     SHCreateDirectory(NULL, dirsToCreate.c_str());
-    std::wcout << L"Creating directory: " << dirsToCreate << std::endl;
+    return dirsToCreate;
 }
 
 HANDLE WINAPI HookedCreateFileW(
@@ -46,7 +46,7 @@ HANDLE WINAPI HookedCreateFileW(
 {   
     std::wstring lpFileNameW(lpFileName);
     std::wstring baseDirW(baseDir.begin(), baseDir.end());
-    std::wstring redirectPath = baseDirW + L"\\redirect";
+    std::wstring redirectPath = baseDirW + L"\\redirect" + splitLast(lpFileNameW, L"\\Balatro");
     
     std::wcout << "HookedCreateFileW called with: " << lpFileNameW << std::endl;
     if (dwDesiredAccess & GENERIC_READ) std::wcout << L"  - GENERIC_READ" << std::endl;
@@ -54,14 +54,25 @@ HANDLE WINAPI HookedCreateFileW(
     if (dwDesiredAccess & GENERIC_EXECUTE) std::wcout << L"  - GENERIC_EXECUTE" << std::endl;
     if (dwDesiredAccess & GENERIC_ALL) std::wcout << L"  - GENERIC_ALL" << std::endl;
 
-    if (dwDesiredAccess & GENERIC_WRITE) {
-        createDirFromPath(lpFileNameW, redirectPath);
-        std::wcout << L"NEW PATH: " << redirectPath << std::endl << std::endl;
+    std::wstring dirToCreate = createDirFromPath(lpFileNameW, baseDirW + L"\\redirect");
+    size_t lastSlash = lpFileNameW.find_last_of(L"\\/");
+    std::wstring fileNameOnly = lpFileNameW.substr(lastSlash + 1);
+    std::wstring newFilePath = dirToCreate + L"\\" + fileNameOnly;
 
+    if (dwDesiredAccess & GENERIC_WRITE) {
+        lpFileNameW = newFilePath;
+    }
+    else if (dwDesiredAccess & GENERIC_READ) {
+        if (fileExists(newFilePath)) {
+			lpFileNameW = newFilePath;
+        }
+        else {
+            CopyFileW(lpFileNameW.c_str(), newFilePath.c_str(), FALSE);
+        }
     }
 
     return originalCreateFileW(lpFileNameW.c_str(), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
-}
+};
 
 void InstallHooks() {
     FILE* pCout = nullptr;
