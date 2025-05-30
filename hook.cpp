@@ -18,23 +18,14 @@ int WINAPI HookedMessageBoxW(HWND hWnd, LPCWSTR lpText, LPCWSTR lpCaption, UINT 
     return originalMessageBoxW(hWnd, L"cccc", lpCaption, uType);
 }
 
-std::wstring RedirectPath(LPCWSTR originalPath, const std::wstring& writeTo, const std::wstring& limiter) {
-    std::wstring pathW(originalPath);
-    size_t pos = pathW.find(limiter);
-    if (pos != std::wstring::npos) {
-        std::wstring relPath = pathW.substr(pos + limiter.length());
-        pathW = writeTo + relPath;
-    }
-    return pathW;
-}
-
 bool fileExists(const std::wstring& path) {
 	std::ifstream file(path);
     return file.is_open();
 }
 
 HANDLE WINAPI HookedCreateFileW(
-    LPCWSTR lpFileName, DWORD dwDesiredAccess,
+    LPCWSTR lpFileName,
+    DWORD dwDesiredAccess,
     DWORD dwShareMode,
     LPSECURITY_ATTRIBUTES lpSecurityAttributes,
     DWORD dwCreationDisposition,
@@ -43,19 +34,16 @@ HANDLE WINAPI HookedCreateFileW(
 {   
     std::wstring lpFileNameW(lpFileName);
     std::wstring baseDirW(baseDir.begin(), baseDir.end());
-    std::wstring newPath = RedirectPath(lpFileName, baseDirW + L"\\Redirect", L"AppData\\Roaming\\Balatro");
+    
+    std::wcout << "HookedCreateFileW called with: " << lpFileNameW << std::endl;
+    if (dwDesiredAccess & GENERIC_READ) std::wcout << L"  - GENERIC_READ" << std::endl;
+    if (dwDesiredAccess & GENERIC_WRITE) std::wcout << L"  - GENERIC_WRITE" << std::endl;
+    if (dwDesiredAccess & GENERIC_EXECUTE) std::wcout << L"  - GENERIC_EXECUTE" << std::endl;
+    if (dwDesiredAccess & GENERIC_ALL) std::wcout << L"  - GENERIC_ALL" << std::endl << std::endl;
 
-    // if file doesnt exist in /redirect, copy from original location to redirect
-    if (!fileExists(newPath)) {
-		// copy file from original path (lpFileName) to /redirect
-        // lpFileName is entire path, so we need to extract the filename
-        std::wstring fileName = lpFileNameW.substr(lpFileNameW.find_last_of(L"\\") + 1);
-        std::wstring newFile = baseDirW + L"\\Redirect\\aaa\\" + std::wstring(fileName);
-        CopyFileW(lpFileName, newFile.c_str(), FALSE);
-        std::wcout << L"Copied file from " << lpFileNameW << L" to " << newFile << std::endl;
-	}
 
-    return originalCreateFileW(newPath.c_str(), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+
+    return originalCreateFileW(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 }
 
 void InstallHooks() {
