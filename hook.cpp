@@ -3,7 +3,10 @@
 #include <sstream>
 #include <iostream>
 #include <fstream>
+#include <ShlObj.h>
 #include "util.h"
+#include <PathCch.h>
+#pragma comment(lib, "Pathcch.lib")
 
 const std::string baseDir = GetCurrentDir();
 
@@ -23,6 +26,15 @@ bool fileExists(const std::wstring& path) {
     return file.is_open();
 }
 
+void createDirFromPath(std::wstring originalPath, std::wstring baseDir) {
+    wchar_t buffer[MAX_PATH];
+    wcscpy_s(buffer, originalPath.c_str());
+    PathCchRemoveFileSpec(buffer, MAX_PATH);
+    std::wstring dirsToCreate = baseDir + splitLast(std::wstring(buffer), L"\\Balatro");
+    SHCreateDirectory(NULL, dirsToCreate.c_str());
+    std::wcout << L"Creating directory: " << dirsToCreate << std::endl;
+}
+
 HANDLE WINAPI HookedCreateFileW(
     LPCWSTR lpFileName,
     DWORD dwDesiredAccess,
@@ -34,16 +46,21 @@ HANDLE WINAPI HookedCreateFileW(
 {   
     std::wstring lpFileNameW(lpFileName);
     std::wstring baseDirW(baseDir.begin(), baseDir.end());
+    std::wstring redirectPath = baseDirW + L"\\redirect";
     
     std::wcout << "HookedCreateFileW called with: " << lpFileNameW << std::endl;
     if (dwDesiredAccess & GENERIC_READ) std::wcout << L"  - GENERIC_READ" << std::endl;
     if (dwDesiredAccess & GENERIC_WRITE) std::wcout << L"  - GENERIC_WRITE" << std::endl;
     if (dwDesiredAccess & GENERIC_EXECUTE) std::wcout << L"  - GENERIC_EXECUTE" << std::endl;
-    if (dwDesiredAccess & GENERIC_ALL) std::wcout << L"  - GENERIC_ALL" << std::endl << std::endl;
+    if (dwDesiredAccess & GENERIC_ALL) std::wcout << L"  - GENERIC_ALL" << std::endl;
 
+    if (dwDesiredAccess & GENERIC_WRITE) {
+        createDirFromPath(lpFileNameW, redirectPath);
+        std::wcout << L"NEW PATH: " << redirectPath << std::endl << std::endl;
 
+    }
 
-    return originalCreateFileW(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+    return originalCreateFileW(lpFileNameW.c_str(), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 }
 
 void InstallHooks() {
